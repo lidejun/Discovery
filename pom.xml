@@ -221,6 +221,17 @@
             </dependency>
 
             <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-api</artifactId>
+                <version>${opentracing.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-noop</artifactId>
+                <version>${opentracing.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>discovery-plugin-strategy-starter-opentracing</artifactId>
                 <version>${project.version}</version>
@@ -548,14 +559,14 @@
             </build>
 
             <distributionManagement>
-                <snapshotRepository>
-                    <id>oss</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-                </snapshotRepository>
                 <repository>
-                    <id>oss</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                    <id>releases</id>
+                    <url>http://nexus.thescm.com.cn/nexus/content/repositories/releases/</url>
                 </repository>
+                <snapshotRepository>
+                    <id>snapshots</id>
+                    <url>http://nexus.thescm.com.cn/nexus/content/repositories/snapshots/</url>
+                </snapshotRepository>
             </distributionManagement>
         </profile>
     </profiles>
@@ -573,6 +584,19 @@
         <developerConnection>scm:git:https://github.com/Nepxion/Discovery.git</developerConnection>
         <tag>v${project.version}</tag>
     </scm>
+
+    <repositories>
+        <repository>
+            <id>public</id>
+            <url>http://nexus.thescm.com.cn/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <organization>
         <name>Nepxion</name>

@@ -14,6 +14,7 @@ import io.opentracing.SpanContext;
 
 import java.util.Map;
 
+import io.opentracing.tag.Tag;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 
 import com.nepxion.discovery.common.constant.DiscoveryConstant;
@@ -77,6 +78,11 @@ public class SkyWalkingStrategySpan implements Span {
     }
 
     @Override
+    public <T> Span setTag(Tag<T> tag, T t) {
+        return span.setTag(tag,t);
+    }
+
+    @Override
     public Span log(Map<String, ?> fields) {
         return span.log(fields);
     }
@@ -94,18 +100,6 @@ public class SkyWalkingStrategySpan implements Span {
     @Override
     public String getBaggageItem(String key) {
         return span.getBaggageItem(key);
-    }
-
-    @Deprecated
-    @Override
-    public Span log(String eventName, Object payload) {
-        return span.log(eventName, payload);
-    }
-
-    @Deprecated
-    @Override
-    public Span log(long timestampMicroseconds, String eventName, Object payload) {
-        return span.log(timestampMicroseconds, eventName, payload);
     }
 
     public String toTraceId() {
