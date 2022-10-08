@@ -27,7 +27,7 @@ public class SkyWalkingStrategyTracer extends AbstractStrategyTracer<SkyWalkingS
 
     @Override
     protected SkyWalkingStrategySpan buildSpan() {
-        return new SkyWalkingStrategySpan(tracer.buildSpan(tracerSpanValue).startManual());
+        return new SkyWalkingStrategySpan(tracer.buildSpan(tracerSpanValue).start());
     }
 
     @Override
