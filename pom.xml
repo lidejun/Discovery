@@ -43,6 +43,7 @@
         <opentracing.version>0.33.0</opentracing.version>
         <skywalking.version>8.12.0</skywalking.version>
         <alibaba.spring.version>1.0.11</alibaba.spring.version>
+        <nacos.client.version>2.1.2</nacos.client.version>
         <spring.cloud.version>Hoxton.SR12</spring.cloud.version>
         <spring.cloud.alibaba.version>2.2.9.RELEASE</spring.cloud.alibaba.version>
         <spring.boot.version>2.3.12.RELEASE</spring.boot.version>
@@ -460,6 +461,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-client</artifactId>
+                <version>${nacos.client.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring.cloud.version}</version>
@@ -576,19 +583,19 @@
 
     <distributionManagement>
         <repository>
-            <id>releases</id>
-            <url>http://nexus.thescm.com.cn/nexus/content/repositories/releases/</url>
+            <id>nexus3-releases</id>
+            <url>https://registry.seawto.com/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
-            <id>snapshots</id>
-            <url>http://nexus.thescm.com.cn/nexus/content/repositories/snapshots/</url>
+            <id>nexus3-snapshots</id>
+            <url>https://registry.seawto.com/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
     <repositories>
         <repository>
             <id>public</id>
-            <url>http://nexus.thescm.com.cn/nexus/content/groups/public/</url>
+            <url>https://registry.seawto.com/repository/maven-public/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
