@@ -27,6 +27,7 @@ public class SkyWalkingStrategyTracer extends AbstractStrategyTracer<SkyWalkingS
 
     @Override
     protected SkyWalkingStrategySpan buildSpan() {
+        //GlobalTracer.get().buildSpan(SentinelStrategyMonitorConstant.SPAN_NAME).start();
         return new SkyWalkingStrategySpan(tracer.buildSpan(tracerSpanValue).start());
     }
 

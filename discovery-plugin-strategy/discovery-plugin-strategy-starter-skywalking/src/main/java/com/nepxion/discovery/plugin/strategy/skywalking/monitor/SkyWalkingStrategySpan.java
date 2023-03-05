@@ -79,7 +79,7 @@ public class SkyWalkingStrategySpan implements Span {
 
     @Override
     public <T> Span setTag(Tag<T> tag, T t) {
-        return span.setTag(tag,t);
+        return span.setTag(tag, t);
     }
 
     @Override
