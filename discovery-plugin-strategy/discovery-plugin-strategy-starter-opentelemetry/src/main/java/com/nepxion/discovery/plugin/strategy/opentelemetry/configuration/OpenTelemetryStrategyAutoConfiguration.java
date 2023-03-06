@@ -14,14 +14,17 @@ import com.nepxion.discovery.common.util.StringUtil;
 import com.nepxion.discovery.plugin.framework.context.PluginContextAware;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporterBuilder;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
+import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -67,6 +70,12 @@ public class OpenTelemetryStrategyAutoConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnProperty(value = StrategyConstant.SPRING_APPLICATION_STRATEGY_MONITOR_ENABLED, matchIfMissing = false)
     public OpenTelemetry openTelemetry() {
+        //设置服务名称
+        Resource resource = Resource.getDefault()
+                .merge(Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, this.applicationName) // 设置Service Name
+                        //ResourceAttributes.CLOUD_PLATFORM, "")
+                ));
+
         OtlpGrpcSpanExporterBuilder builder = OtlpGrpcSpanExporter.builder();
         if (!StringUtils.isEmpty(this.otlpEndpoint)) {
             builder.setEndpoint(this.otlpEndpoint);
@@ -77,6 +86,7 @@ public class OpenTelemetryStrategyAutoConfiguration {
 
         SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
                 .addSpanProcessor(BatchSpanProcessor.builder(builder.build()).build())
+                .setResource(resource)
                 .build();
 
         return OpenTelemetrySdk.builder()
