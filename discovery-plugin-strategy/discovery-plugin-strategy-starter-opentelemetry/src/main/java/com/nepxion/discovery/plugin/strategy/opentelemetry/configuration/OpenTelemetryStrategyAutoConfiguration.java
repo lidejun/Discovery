@@ -10,9 +10,6 @@ package com.nepxion.discovery.plugin.strategy.opentelemetry.configuration;
  */
 
 import com.nepxion.discovery.common.constant.DiscoveryConstant;
-import com.nepxion.discovery.common.util.StringUtil;
-import com.nepxion.discovery.plugin.framework.context.PluginContextAware;
-import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Tracer;
@@ -40,7 +37,6 @@ import com.nepxion.discovery.plugin.strategy.constant.StrategyConstant;
 import com.nepxion.discovery.plugin.strategy.monitor.StrategyTracer;
 import com.nepxion.discovery.plugin.strategy.opentelemetry.monitor.OpenTelemetryStrategyTracer;
 import com.taobao.text.Color;
-import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 @Configuration
@@ -68,7 +64,7 @@ public class OpenTelemetryStrategyAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(value = StrategyConstant.SPRING_APPLICATION_STRATEGY_MONITOR_ENABLED, matchIfMissing = false)
+    @ConditionalOnProperty(value = StrategyConstant.SPRING_APPLICATION_STRATEGY_TRACER_ENABLED, matchIfMissing = false)
     public OpenTelemetry openTelemetry() {
         //设置服务名称
         Resource resource = Resource.getDefault()
@@ -97,14 +93,14 @@ public class OpenTelemetryStrategyAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(value = StrategyConstant.SPRING_APPLICATION_STRATEGY_MONITOR_ENABLED, matchIfMissing = false)
+    @ConditionalOnProperty(value = StrategyConstant.SPRING_APPLICATION_STRATEGY_TRACER_ENABLED, matchIfMissing = false)
     public Tracer tracer(OpenTelemetry openTelemetry) {
         return openTelemetry.getTracer(this.applicationName, this.version);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(value = StrategyConstant.SPRING_APPLICATION_STRATEGY_MONITOR_ENABLED, matchIfMissing = false)
+    @ConditionalOnProperty(value = StrategyConstant.SPRING_APPLICATION_STRATEGY_TRACER_ENABLED, matchIfMissing = false)
     public StrategyTracer strategyTracer() {
         return new OpenTelemetryStrategyTracer();
     }
