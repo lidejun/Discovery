@@ -11,10 +11,11 @@
     <parent>
         <groupId>com.nepxion</groupId>
         <artifactId>discovery</artifactId>
-        <version>6.17.0.1</version>
+        <version>6.21.0.1</version>
     </parent>
 
     <modules>
         <module>discovery-plugin-admin-center-starter</module>
+        <module>discovery-plugin-admin-center-starter-swagger</module>
     </modules>
 </project>

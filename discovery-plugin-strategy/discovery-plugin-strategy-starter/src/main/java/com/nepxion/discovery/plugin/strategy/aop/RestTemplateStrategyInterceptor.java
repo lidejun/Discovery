@@ -18,6 +18,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +35,8 @@ import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
 import com.nepxion.discovery.plugin.strategy.util.StrategyUtil;
 
 public class RestTemplateStrategyInterceptor extends AbstractStrategyInterceptor implements ClientHttpRequestInterceptor {
+    private static final Logger LOG = LoggerFactory.getLogger(RestTemplateStrategyInterceptor.class);
+
     @Autowired
     protected StrategyContextHolder strategyContextHolder;
 
@@ -40,10 +44,6 @@ public class RestTemplateStrategyInterceptor extends AbstractStrategyInterceptor
     // 核心策略Header指n-d-开头的Header（不包括n-d-env，因为环境路由隔离，必须传递该Header），不包括n-d-service开头的Header
     @Value("${" + StrategyConstant.SPRING_APPLICATION_STRATEGY_REST_TEMPLATE_CORE_HEADER_TRANSMISSION_ENABLED + ":true}")
     protected Boolean restTemplateCoreHeaderTransmissionEnabled;
-
-    public RestTemplateStrategyInterceptor(String contextRequestHeaders, String businessRequestHeaders) {
-        super(contextRequestHeaders, businessRequestHeaders);
-    }
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
@@ -73,10 +73,22 @@ public class RestTemplateStrategyInterceptor extends AbstractStrategyInterceptor
         }
         headers.add(DiscoveryConstant.N_D_SERVICE_ID, pluginAdapter.getServiceId());
         headers.add(DiscoveryConstant.N_D_SERVICE_ADDRESS, pluginAdapter.getHost() + ":" + pluginAdapter.getPort());
-        headers.add(DiscoveryConstant.N_D_SERVICE_VERSION, pluginAdapter.getVersion());
-        headers.add(DiscoveryConstant.N_D_SERVICE_REGION, pluginAdapter.getRegion());
-        headers.add(DiscoveryConstant.N_D_SERVICE_ENVIRONMENT, pluginAdapter.getEnvironment());
-        headers.add(DiscoveryConstant.N_D_SERVICE_ZONE, pluginAdapter.getZone());
+        String version = pluginAdapter.getVersion();
+        if (StringUtils.isNotEmpty(version) && !StringUtils.equals(version, DiscoveryConstant.DEFAULT)) {
+            headers.add(DiscoveryConstant.N_D_SERVICE_VERSION, version);
+        }
+        String region = pluginAdapter.getRegion();
+        if (StringUtils.isNotEmpty(region) && !StringUtils.equals(region, DiscoveryConstant.DEFAULT)) {
+            headers.add(DiscoveryConstant.N_D_SERVICE_REGION, region);
+        }
+        String environment = pluginAdapter.getEnvironment();
+        if (StringUtils.isNotEmpty(environment) && !StringUtils.equals(environment, DiscoveryConstant.DEFAULT)) {
+            headers.add(DiscoveryConstant.N_D_SERVICE_ENVIRONMENT, environment);
+        }
+        String zone = pluginAdapter.getZone();
+        if (StringUtils.isNotEmpty(zone) && !StringUtils.equals(zone, DiscoveryConstant.DEFAULT)) {
+            headers.add(DiscoveryConstant.N_D_SERVICE_ZONE, zone);
+        }
     }
 
     // 处理外部Header的转发，即外部服务传递过来的Header，中继转发到下游服务去
@@ -201,7 +213,9 @@ public class RestTemplateStrategyInterceptor extends AbstractStrategyInterceptor
             return;
         }
 
-        System.out.println("----- RestTemplate Intercept Output Header Information -----");
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("\n");
+        stringBuilder.append("----- RestTemplate Intercept Output Header Information -----").append("\n");
         HttpHeaders headers = request.getHeaders();
         for (Iterator<Entry<String, List<String>>> iterator = headers.entrySet().iterator(); iterator.hasNext();) {
             Entry<String, List<String>> header = iterator.next();
@@ -210,14 +224,20 @@ public class RestTemplateStrategyInterceptor extends AbstractStrategyInterceptor
             if (isHeaderContains) {
                 List<String> headerValue = header.getValue();
 
-                System.out.println(headerName + "=" + headerValue);
+                stringBuilder.append(headerName + "=" + headerValue).append("\n");
             }
         }
-        System.out.println("------------------------------------------------------------");
+        stringBuilder.append("------------------------------------------------------------");
+        LOG.info(stringBuilder.toString());
     }
 
     @Override
     protected InterceptorType getInterceptorType() {
         return InterceptorType.REST_TEMPLATE;
+    }
+
+    @Override
+    protected Logger getInterceptorLogger() {
+        return LOG;
     }
 }

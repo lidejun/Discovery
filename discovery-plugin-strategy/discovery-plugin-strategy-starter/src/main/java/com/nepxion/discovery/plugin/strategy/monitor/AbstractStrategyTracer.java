@@ -9,8 +9,10 @@ package com.nepxion.discovery.plugin.strategy.monitor;
  * @version 1.0
  */
 
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,19 +76,6 @@ public abstract class AbstractStrategyTracer<S> implements StrategyTracer {
             return;
         }
 
-        if (MapUtils.isNotEmpty(contextMap)) {
-            for (Map.Entry<String, String> entry : contextMap.entrySet()) {
-                outputSpan(span, entry.getKey(), entry.getValue());
-            }
-        }
-
-        Map<String, String> customizationMap = strategyMonitorContext.getCustomizationMap();
-        if (MapUtils.isNotEmpty(customizationMap)) {
-            for (Map.Entry<String, String> entry : customizationMap.entrySet()) {
-                outputSpan(span, entry.getKey(), entry.getValue());
-            }
-        }
-
         if (tracerSeparateSpanEnabled) {
             outputSpan(span, DiscoveryConstant.SPAN_TAG_PLUGIN_NAME, tracerSpanPluginValue);
         }
@@ -100,10 +89,22 @@ public abstract class AbstractStrategyTracer<S> implements StrategyTracer {
         }
         outputSpan(span, DiscoveryConstant.N_D_SERVICE_ID, pluginAdapter.getServiceId());
         outputSpan(span, DiscoveryConstant.N_D_SERVICE_ADDRESS, pluginAdapter.getHost() + ":" + pluginAdapter.getPort());
-        outputSpan(span, DiscoveryConstant.N_D_SERVICE_VERSION, pluginAdapter.getVersion());
-        outputSpan(span, DiscoveryConstant.N_D_SERVICE_REGION, pluginAdapter.getRegion());
-        outputSpan(span, DiscoveryConstant.N_D_SERVICE_ENVIRONMENT, pluginAdapter.getEnvironment());
-        outputSpan(span, DiscoveryConstant.N_D_SERVICE_ZONE, pluginAdapter.getZone());
+        String version = pluginAdapter.getVersion();
+        if (StringUtils.isNotEmpty(version) && !StringUtils.equals(version, DiscoveryConstant.DEFAULT)) {
+            outputSpan(span, DiscoveryConstant.N_D_SERVICE_VERSION, version);
+        }
+        String region = pluginAdapter.getRegion();
+        if (StringUtils.isNotEmpty(region) && !StringUtils.equals(region, DiscoveryConstant.DEFAULT)) {
+            outputSpan(span, DiscoveryConstant.N_D_SERVICE_REGION, region);
+        }
+        String environment = pluginAdapter.getEnvironment();
+        if (StringUtils.isNotEmpty(environment) && !StringUtils.equals(environment, DiscoveryConstant.DEFAULT)) {
+            outputSpan(span, DiscoveryConstant.N_D_SERVICE_ENVIRONMENT, environment);
+        }
+        String zone = pluginAdapter.getZone();
+        if (StringUtils.isNotEmpty(zone) && !StringUtils.equals(zone, DiscoveryConstant.DEFAULT)) {
+            outputSpan(span, DiscoveryConstant.N_D_SERVICE_ZONE, zone);
+        }
 
         if (tracerRuleOutputEnabled) {
             String routeVersion = strategyContextHolder.getHeader(DiscoveryConstant.N_D_VERSION);
@@ -165,6 +166,37 @@ public abstract class AbstractStrategyTracer<S> implements StrategyTracer {
             String routeAddressBlacklist = strategyContextHolder.getHeader(DiscoveryConstant.N_D_ADDRESS_BLACKLIST);
             if (StringUtils.isNotEmpty(routeAddressBlacklist)) {
                 outputSpan(span, DiscoveryConstant.N_D_ADDRESS_BLACKLIST, routeAddressBlacklist);
+            }
+        }
+
+        if (MapUtils.isNotEmpty(contextMap)) {
+            for (Map.Entry<String, String> entry : contextMap.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (StringUtils.isNotEmpty(value)) {
+                    outputSpan(span, key, value);
+                }
+            }
+        }
+
+        List<String> tracerInjectorHeaderNameList = strategyMonitorContext.getTracerInjectorHeaderNameList();
+        if (CollectionUtils.isNotEmpty(tracerInjectorHeaderNameList)) {
+            for (String tracerInjectorHeaderName : tracerInjectorHeaderNameList) {
+                String tracerInjectorHeaderValue = strategyContextHolder.getHeader(tracerInjectorHeaderName);
+                if (StringUtils.isNotEmpty(tracerInjectorHeaderValue)) {
+                    outputSpan(span, tracerInjectorHeaderName, tracerInjectorHeaderValue);
+                }
+            }
+        }
+
+        Map<String, String> tracerCustomizationMap = strategyMonitorContext.getTracerCustomizationMap();
+        if (MapUtils.isNotEmpty(tracerCustomizationMap)) {
+            for (Map.Entry<String, String> entry : tracerCustomizationMap.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (StringUtils.isNotEmpty(value)) {
+                    outputSpan(span, key, value);
+                }
             }
         }
     }

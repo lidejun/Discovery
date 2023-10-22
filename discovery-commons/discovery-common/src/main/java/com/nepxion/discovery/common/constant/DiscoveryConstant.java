@@ -10,7 +10,7 @@ package com.nepxion.discovery.common.constant;
  */
 
 public class DiscoveryConstant {
-    public static final String DISCOVERY_VERSION = "6.17.0";
+    public static final String DISCOVERY_VERSION = "6.21.0";
 
     public static final String NEPXION = "nepxion";
     public static final String NEPXION_UPPERCASE = "NEPXION";
@@ -142,6 +142,9 @@ public class DiscoveryConstant {
     public static final String DOMAIN_GATEWAY = "domain-gateway";
     public static final String NON_DOMAIN_GATEWAY = "non-domain-gateway";
 
+    public static final String SORT_BY_VERSION = "version";
+    public static final String SORT_BY_TIME = "time";
+
     public static final String BLACKLIST = "blacklist";
     public static final String WHITELIST = "whitelist";
 
@@ -198,6 +201,9 @@ public class DiscoveryConstant {
     public static final String EXPRESSION_REGEX = "\\#" + EXPRESSION_PREFIX + "\\['\\S+'\\]";
     public static final String EXPRESSION_SUB_PREFIX = "#" + EXPRESSION_PREFIX + "['";
     public static final String EXPRESSION_SUB_SUFFIX = "']";
+
+    public static final String EXPRESSION_SINGLE_QUOTES_REGEX = "[^\\S\"']+|\"[^\"]*\"|'[^']*'";
+    public static final String EXPRESSION_SINGLE_QUOTES = "'";
 
     public static final String EMPTY_XML_RULE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rule>\n</rule>";
     public static final String EMPTY_JSON_RULE_SINGLE = "{}";

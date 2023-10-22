@@ -26,6 +26,7 @@ public class InspectorDebugEntity implements Serializable {
     private String path;
     private List<String> service;
     private Map<String, String> header;
+    private List<String> filter;
 
     public String getProtocol() {
         return protocol;
@@ -65,6 +66,14 @@ public class InspectorDebugEntity implements Serializable {
 
     public void setHeader(Map<String, String> header) {
         this.header = header;
+    }
+
+    public List<String> getFilter() {
+        return filter;
+    }
+
+    public void setFilter(List<String> filter) {
+        this.filter = filter;
     }
 
     @Override

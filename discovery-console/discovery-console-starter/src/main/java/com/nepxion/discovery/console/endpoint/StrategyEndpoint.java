@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nepxion.discovery.common.entity.ConditionRouteStrategy;
 import com.nepxion.discovery.common.entity.ConditionStrategy;
 import com.nepxion.discovery.common.util.ResponseUtil;
 import com.nepxion.discovery.console.resource.StrategyResource;
@@ -34,18 +35,46 @@ public class StrategyEndpoint {
     @Autowired
     private StrategyResource strategyResource;
 
-    @RequestMapping(path = "/parse-version-release", method = RequestMethod.POST)
-    @ApiOperation(value = "解析版本蓝绿灰度发布", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @RequestMapping(path = "/get-version-release/{group}", method = RequestMethod.GET)
+    @ApiOperation(value = "全局订阅方式，获取Json格式的蓝绿灰度发布", notes = "", response = ResponseEntity.class, httpMethod = "GET")
     @ResponseBody
-    public ResponseEntity<?> parseVersionRelease(@RequestBody @ApiParam(value = "蓝绿灰度策略对象", required = true) ConditionStrategy conditionStrategy) {
-        return doParseVersionRelease(conditionStrategy);
+    public ResponseEntity<?> getVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group) {
+        return doGetVersionRelease(group);
     }
 
-    @RequestMapping(path = "/create-version-release/{group}", method = RequestMethod.POST)
-    @ApiOperation(value = "全局订阅方式，创建版本蓝绿灰度发布", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @RequestMapping(path = "/create-version-release-yaml/{group}", method = RequestMethod.POST)
+    @ApiOperation(value = "全局订阅方式，根据Yaml格式，创建版本蓝绿灰度发布", notes = "", response = ResponseEntity.class, httpMethod = "POST")
     @ResponseBody
-    public ResponseEntity<?> createVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @RequestBody @ApiParam(value = "蓝绿灰度策略对象", required = true) ConditionStrategy conditionStrategy) {
+    public ResponseEntity<?> createVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @RequestBody @ApiParam(value = "蓝绿灰度策略Yaml", required = true) String conditionStrategyYaml) {
+        return doCreateVersionRelease(group, conditionStrategyYaml);
+    }
+
+    @RequestMapping(path = "/create-version-release-json/{group}", method = RequestMethod.POST)
+    @ApiOperation(value = "全局订阅方式，根据Json格式，创建版本蓝绿灰度发布", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> createVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @RequestBody @ApiParam(value = "蓝绿灰度策略Json", required = true) ConditionStrategy conditionStrategy) {
         return doCreateVersionRelease(group, conditionStrategy);
+    }
+
+    @RequestMapping(path = "/recreate-version-release-yaml/{group}", method = RequestMethod.POST)
+    @ApiOperation(value = "全局订阅方式，根据Yaml格式，重新创建版本蓝绿灰度发布（创建链路智能编排，不创建条件表达式）", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> recreateVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @RequestBody @ApiParam(value = "蓝绿灰度路由策略Yaml", required = true) String conditionRouteStrategyYaml) {
+        return doRecreateVersionRelease(group, conditionRouteStrategyYaml);
+    }
+
+    @RequestMapping(path = "/recreate-version-release-json/{group}", method = RequestMethod.POST)
+    @ApiOperation(value = "全局订阅方式，根据Json格式，重新创建版本蓝绿灰度发布（创建链路智能编排，不创建条件表达式）", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> recreateVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @RequestBody @ApiParam(value = "蓝绿灰度路由策略Json", required = true) ConditionRouteStrategy conditionRouteStrategy) {
+        return doRecreateVersionRelease(group, conditionRouteStrategy);
+    }
+
+    @RequestMapping(path = "/reset-release/{group}", method = RequestMethod.POST)
+    @ApiOperation(value = "全局订阅方式，重置蓝绿灰度发布（清除链路智能编排，不清除条件表达式）", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> resetRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group) {
+        return doResetRelease(group);
     }
 
     @RequestMapping(path = "/clear-release/{group}", method = RequestMethod.POST)
@@ -55,11 +84,46 @@ public class StrategyEndpoint {
         return doClearRelease(group);
     }
 
-    @RequestMapping(path = "/create-version-release/{group}/{serviceId}", method = RequestMethod.POST)
-    @ApiOperation(value = "局部订阅方式，创建版本蓝绿灰度发布", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @RequestMapping(path = "/get-version-release/{group}/{serviceId}", method = RequestMethod.GET)
+    @ApiOperation(value = "局部订阅方式，获取Json格式的蓝绿灰度发布", notes = "", response = ResponseEntity.class, httpMethod = "GET")
     @ResponseBody
-    public ResponseEntity<?> createVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @PathVariable(value = "serviceId") @ApiParam(value = "服务名", required = true) String serviceId, @RequestBody @ApiParam(value = "蓝绿灰度策略对象", required = true) ConditionStrategy conditionStrategy) {
+    public ResponseEntity<?> getVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @PathVariable(value = "serviceId") @ApiParam(value = "服务名", required = true) String serviceId) {
+        return doGetVersionRelease(group, serviceId);
+    }
+
+    @RequestMapping(path = "/create-version-release-yaml/{group}/{serviceId}", method = RequestMethod.POST)
+    @ApiOperation(value = "局部订阅方式，根据Yaml格式，创建版本蓝绿灰度发布", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> createVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @PathVariable(value = "serviceId") @ApiParam(value = "服务名", required = true) String serviceId, @RequestBody @ApiParam(value = "蓝绿灰度策略Yaml", required = true) String conditionStrategyYaml) {
+        return doCreateVersionRelease(group, serviceId, conditionStrategyYaml);
+    }
+
+    @RequestMapping(path = "/create-version-release-json/{group}/{serviceId}", method = RequestMethod.POST)
+    @ApiOperation(value = "局部订阅方式，根据Json格式，创建版本蓝绿灰度发布", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> createVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @PathVariable(value = "serviceId") @ApiParam(value = "服务名", required = true) String serviceId, @RequestBody @ApiParam(value = "蓝绿灰度策略Json", required = true) ConditionStrategy conditionStrategy) {
         return doCreateVersionRelease(group, serviceId, conditionStrategy);
+    }
+
+    @RequestMapping(path = "/recreate-version-release-yaml/{group}/{serviceId}", method = RequestMethod.POST)
+    @ApiOperation(value = "局部订阅方式，根据Yaml格式，重新创建版本蓝绿灰度发布（创建链路智能编排，不创建条件表达式）", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> recreateVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @PathVariable(value = "serviceId") @ApiParam(value = "服务名", required = true) String serviceId, @RequestBody @ApiParam(value = "蓝绿灰度路由策略Yaml", required = true) String conditionRouteStrategyYaml) {
+        return doRecreateVersionRelease(group, serviceId, conditionRouteStrategyYaml);
+    }
+
+    @RequestMapping(path = "/recreate-version-release-json/{group}/{serviceId}", method = RequestMethod.POST)
+    @ApiOperation(value = "局部订阅方式，根据Json格式，重新创建版本蓝绿灰度发布（创建链路智能编排，不创建条件表达式）", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> recreateVersionRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @PathVariable(value = "serviceId") @ApiParam(value = "服务名", required = true) String serviceId, @RequestBody @ApiParam(value = "蓝绿灰度路由策略Json", required = true) ConditionRouteStrategy conditionRouteStrategy) {
+        return doRecreateVersionRelease(group, serviceId, conditionRouteStrategy);
+    }
+
+    @RequestMapping(path = "/reset-release/{group}/{serviceId}", method = RequestMethod.POST)
+    @ApiOperation(value = "局部订阅方式，重置蓝绿灰度发布（清除链路智能编排，不清除条件表达式）", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> resetRelease(@PathVariable(value = "group") @ApiParam(value = "组名", required = true) String group, @PathVariable(value = "serviceId") @ApiParam(value = "服务名", required = true) String serviceId) {
+        return doResetRelease(group, serviceId);
     }
 
     @RequestMapping(path = "/clear-release/{group}/{serviceId}", method = RequestMethod.POST)
@@ -69,6 +133,34 @@ public class StrategyEndpoint {
         return doClearRelease(group, serviceId);
     }
 
+    @RequestMapping(path = "/parse-version-release-yaml", method = RequestMethod.POST)
+    @ApiOperation(value = "根据Yaml格式，解析版本蓝绿灰度发布策略为Xml格式", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> parseVersionRelease(@RequestBody @ApiParam(value = "蓝绿灰度策略Yaml", required = true) String conditionStrategyYaml) {
+        return doParseVersionRelease(conditionStrategyYaml);
+    }
+
+    @RequestMapping(path = "/parse-version-release-json", method = RequestMethod.POST)
+    @ApiOperation(value = "根据Json格式，解析版本蓝绿灰度发布策略为Xml格式", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> parseVersionRelease(@RequestBody @ApiParam(value = "蓝绿灰度策略Json", required = true) ConditionStrategy conditionStrategy) {
+        return doParseVersionRelease(conditionStrategy);
+    }
+
+    @RequestMapping(path = "/deparse-version-release-xml", method = RequestMethod.POST)
+    @ApiOperation(value = "根据Xml格式，反解析版本蓝绿灰度发布策略为Json格式", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> deparseVersionRelease(@RequestBody @ApiParam(value = "蓝绿灰度策略Xml", required = true) String ruleXml) {
+        return doDeparseVersionReleaseXml(ruleXml);
+    }
+
+    @RequestMapping(path = "/deparse-version-release-yaml", method = RequestMethod.POST)
+    @ApiOperation(value = "根据Yaml格式，反解析版本蓝绿灰度发布策略为Json格式", notes = "", response = ResponseEntity.class, httpMethod = "POST")
+    @ResponseBody
+    public ResponseEntity<?> convertVersionRelease(@RequestBody @ApiParam(value = "蓝绿灰度策略Yaml", required = true) String conditionStrategyYaml) {
+        return doDeparseVersionReleaseYaml(conditionStrategyYaml);
+    }
+
     @RequestMapping(path = "/validate-expression", method = RequestMethod.GET)
     @ApiOperation(value = "校验策略的条件表达式", notes = "", response = ResponseEntity.class, httpMethod = "GET")
     @ResponseBody
@@ -76,9 +168,19 @@ public class StrategyEndpoint {
         return doValidateExpression(expression, validation);
     }
 
-    private ResponseEntity<?> doParseVersionRelease(ConditionStrategy conditionStrategy) {
+    private ResponseEntity<?> doGetVersionRelease(String group) {
         try {
-            String result = strategyResource.parseVersionRelease(conditionStrategy);
+            ConditionStrategy result = strategyResource.getVersionRelease(group);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doCreateVersionRelease(String group, String conditionStrategyYaml) {
+        try {
+            String result = strategyResource.createVersionRelease(group, conditionStrategyYaml);
 
             return ResponseUtil.getSuccessResponse(result);
         } catch (Exception e) {
@@ -96,9 +198,59 @@ public class StrategyEndpoint {
         }
     }
 
+    private ResponseEntity<?> doRecreateVersionRelease(String group, String conditionRouteStrategyYaml) {
+        try {
+            String result = strategyResource.recreateVersionRelease(group, conditionRouteStrategyYaml);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doRecreateVersionRelease(String group, ConditionRouteStrategy conditionRouteStrategy) {
+        try {
+            String result = strategyResource.recreateVersionRelease(group, conditionRouteStrategy);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doResetRelease(String group) {
+        try {
+            String result = strategyResource.resetRelease(group);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
     private ResponseEntity<?> doClearRelease(String group) {
         try {
             String result = strategyResource.clearRelease(group);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doGetVersionRelease(String group, String serviceId) {
+        try {
+            ConditionStrategy result = strategyResource.getVersionRelease(group, serviceId);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doCreateVersionRelease(String group, String serviceId, String conditionStrategyYaml) {
+        try {
+            String result = strategyResource.createVersionRelease(group, serviceId, conditionStrategyYaml);
 
             return ResponseUtil.getSuccessResponse(result);
         } catch (Exception e) {
@@ -116,9 +268,79 @@ public class StrategyEndpoint {
         }
     }
 
+    private ResponseEntity<?> doRecreateVersionRelease(String group, String serviceId, String conditionRouteStrategyYaml) {
+        try {
+            String result = strategyResource.recreateVersionRelease(group, serviceId, conditionRouteStrategyYaml);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doRecreateVersionRelease(String group, String serviceId, ConditionRouteStrategy conditionRouteStrategy) {
+        try {
+            String result = strategyResource.recreateVersionRelease(group, serviceId, conditionRouteStrategy);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doResetRelease(String group, String serviceId) {
+        try {
+            String result = strategyResource.resetRelease(group, serviceId);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
     private ResponseEntity<?> doClearRelease(String group, String serviceId) {
         try {
             String result = strategyResource.clearRelease(group, serviceId);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doParseVersionRelease(String conditionStrategyYaml) {
+        try {
+            String result = strategyResource.parseVersionRelease(conditionStrategyYaml);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doParseVersionRelease(ConditionStrategy conditionStrategy) {
+        try {
+            String result = strategyResource.parseVersionRelease(conditionStrategy);
+
+            return ResponseUtil.getSuccessResponse(result);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doDeparseVersionReleaseXml(String ruleXml) {
+        try {
+            ConditionStrategy conditionStrategy = strategyResource.deparseVersionReleaseXml(ruleXml);
+
+            return ResponseUtil.getSuccessResponse(conditionStrategy);
+        } catch (Exception e) {
+            return ResponseUtil.getFailureResponse(e);
+        }
+    }
+
+    private ResponseEntity<?> doDeparseVersionReleaseYaml(String conditionStrategyYaml) {
+        try {
+            ConditionStrategy result = strategyResource.deparseVersionReleaseYaml(conditionStrategyYaml);
 
             return ResponseUtil.getSuccessResponse(result);
         } catch (Exception e) {

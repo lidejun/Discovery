@@ -15,7 +15,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessorAdapter;
+import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -28,6 +28,7 @@ import com.nepxion.banner.Description;
 import com.nepxion.banner.LogoBanner;
 import com.nepxion.banner.NepxionBanner;
 import com.nepxion.discovery.common.constant.DiscoveryConstant;
+import com.nepxion.discovery.common.entity.LoadBalancerType;
 import com.nepxion.discovery.common.property.DiscoveryProperties;
 import com.nepxion.discovery.plugin.framework.decorator.DiscoveryClientDecorator;
 import com.nepxion.discovery.plugin.framework.generator.GitGenerator;
@@ -59,10 +60,14 @@ public abstract class PluginApplicationContextInitializer implements Application
 
             NepxionBanner.show(logoBanner, new Description(BannerConstant.VERSION + ":", DiscoveryConstant.DISCOVERY_VERSION, 0, 1), new Description(BannerConstant.GITHUB + ":", BannerConstant.NEPXION_GITHUB + "/Discovery", 0, 1));
 
+            logoBanner = new LogoBanner(PluginApplicationContextInitializer.class, "/com/nepxion/ribbon/resource/logo.txt", "Welcome to Nepxion", 6, 5, new Color[] { Color.red, Color.green, Color.cyan, Color.blue, Color.yellow, Color.magenta }, true);
+
+            NepxionBanner.show(logoBanner, new Description("LoadBalancer:", LoadBalancerType.RIBBON.toString(), 0, 1), new Description(BannerConstant.GITHUB + ":", BannerConstant.NEPXION_GITHUB + "/Discovery", 0, 1));
+
             initializeDefaultProperties(applicationContext);
         }
 
-        applicationContext.getBeanFactory().addBeanPostProcessor(new InstantiationAwareBeanPostProcessorAdapter() {
+        applicationContext.getBeanFactory().addBeanPostProcessor(new SmartInstantiationAwareBeanPostProcessor() {
             @Override
             public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
                 if (bean instanceof DiscoveryClient) {
